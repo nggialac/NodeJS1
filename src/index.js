@@ -1,14 +1,22 @@
 const express = require("express");
 const morgan = require("morgan");
-const app = express();
 const handlebars = require("express-handlebars");
+const methodOverride = require('method-override');//Cho phép chuyển đổi sang phương thức PUT, PATCH,...
+const app = express();
 const path = require("path");
+const db = require('./config/db');
+const route = require("./routes");
 const port = 3300;
 
-const route = require("./routes");
+
+//Connect Database
+db.connect();
 
 //path file
 app.use(express.static(path.join(__dirname, "public")));
+
+//METHOD OVERRIDE (header or params URL)
+app.use(methodOverride('_method'));
 
 //MIDDLE
 app.use(
@@ -25,7 +33,10 @@ app.use(morgan("combined"));
 app.engine(
   "hbs",
   handlebars({
-    extname: ".hbs", //cho no cai duoi khac
+    extname: ".hbs", //dùng view đuôi .hbs
+    helpers:{
+      sum: (a,b)=>a+b
+    }
   })
 );
 app.set("view engine", "hbs");
@@ -37,5 +48,5 @@ route(app);
 
 //PORT
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`App listening at http://localhost:${port}`);
 });
